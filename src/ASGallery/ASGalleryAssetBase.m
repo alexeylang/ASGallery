@@ -12,6 +12,9 @@
 #import "ASCache.h"
 
 @implementation ASGalleryAssetBase
+{
+    NSMutableDictionary *_cacheKeys;
+}
 
 +(ASCache*)fullScreenImageCache
 {
@@ -35,10 +38,25 @@
     return cache;
 }
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _cacheKeys = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
+
 -(NSString*)generateCacheKey:(ASGalleryImageType)imageType
 {
-    // warning never use here self.url -> too long suspend main thread!!!
-    return  [NSString stringWithFormat:@"%u:%u",[self hash],imageType];
+    NSString *cacheKey = _cacheKeys[@(imageType)];
+    if ( !cacheKey )
+    {
+        cacheKey = [[NSProcessInfo processInfo].globallyUniqueString stringByAppendingFormat:@"%d", imageType];
+        _cacheKeys[@(imageType)] = cacheKey;
+    }
+    return cacheKey;
 }
 
 -(ASCache*)cacheForType:(ASGalleryImageType)imageType
