@@ -634,4 +634,9 @@ NS_INLINE NSUInteger iOSVersion() {
     }
 }
 
+- (void)cancelHidingBarsForCurrentPage
+{
+    hideBarsToken.isCancelled = YES;
+}
+
 @end

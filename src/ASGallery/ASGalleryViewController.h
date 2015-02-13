@@ -105,5 +105,7 @@ typedef void (^ASImageSetBlock)(ASGalleryImageType type, UIImage* image);
 
 // can be ovveride, for create and preinit ASGalleryPage subclass. also you can use galleryPageClass only or together with this method
 -(ASGalleryPage*)createGalleryPage;
-        
+
+- (void)cancelHidingBarsForCurrentPage;
+
 @end
