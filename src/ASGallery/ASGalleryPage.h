@@ -38,6 +38,10 @@
 
 @protocol ASGalleryAsset;
 @interface ASGalleryPage : UIView
+{
+@protected
+    id<ASGalleryAsset> _asset;
+}
 
 @property(nonatomic, weak) id<ASGalleryPageDelegate> delegate;
 @property(nonatomic,strong) id<ASGalleryAsset> asset;
