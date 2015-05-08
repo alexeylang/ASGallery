@@ -156,6 +156,7 @@ static UIImage* playButtonImage()
 
 -(void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [loadImageOp cancel];
 }
 
@@ -201,7 +202,9 @@ static UIImage* playButtonImage()
 /*  video support */
 -(void)moviePlayBackDidFinish:(NSDictionary*)userInfo
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer];
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer];
+    [notificationCenter removeObserver:self name:MPMoviePlayerReadyForDisplayDidChangeNotification object:moviePlayer];
     moviePlayer.scalingMode = imageScrollView.zoomScale > imageScrollView.minimumZoomScale ? MPMovieScalingModeAspectFill : UIViewContentModeScaleAspectFit;
     imageScrollView.zoomScale = moviePlayer.scalingMode == MPMovieScalingModeAspectFit ? imageScrollView.minimumZoomScale:imageScrollView.maximumZoomScale;
     
@@ -210,6 +213,20 @@ static UIImage* playButtonImage()
     
     if ([self.delegate respondsToSelector:@selector(playbackFinished:)]){
         [self.delegate playbackFinished:self];
+    }
+}
+
+- (void)moviePlayReadyForDisplay:(NSNotification *)notification
+{
+    if ( notification.object != moviePlayer )
+    {
+        return;
+    }
+
+    if ( [moviePlayer.view isHidden] )
+    {
+        moviePlayer.view.hidden = NO;
+        [moviePlayer play];
     }
 }
 
@@ -235,25 +252,21 @@ static UIImage* playButtonImage()
     }
 
     assert(_asset.isVideo);
+
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter addObserver:self selector:@selector(moviePlayBackDidFinish:) name:MPMoviePlayerPlaybackDidFinishNotification object:moviePlayer];
+    [notificationCenter addObserver:self selector:@selector(moviePlayReadyForDisplay:) name:MPMoviePlayerReadyForDisplayDidChangeNotification object:moviePlayer];
+
     moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:_asset.url];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(moviePlayBackDidFinish:)
-                                                 name:MPMoviePlayerPlaybackDidFinishNotification
-                                               object:moviePlayer];
-    
     moviePlayer.controlStyle = MPMovieControlStyleFullscreen;
-    // moviePlayer.shouldAutoplay = YES;
-    
-    
-    [moviePlayer.view setFrame: self.bounds];
+    moviePlayer.shouldAutoplay = NO;
+    moviePlayer.view.frame = self.bounds;
     moviePlayer.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    moviePlayer.view.hidden = YES;
     moviePlayer.scalingMode = imageScrollView.zoomScale > imageScrollView.minimumZoomScale ? MPMovieScalingModeAspectFill : UIViewContentModeScaleAspectFit;
-    
     [self addSubview:moviePlayer.view];
-    
-    [moviePlayer play];
-    
+
+    [moviePlayer prepareToPlay];
 }
 
 -(UIButton*)createPlayButton
