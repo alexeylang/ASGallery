@@ -144,6 +144,7 @@ static UIImage* playButtonImage()
     CGPoint restorePoint = [imageScrollView pointToCenterAfterRotation];
     CGFloat restoreScale = [imageScrollView scaleToRestoreAfterRotation];
     self.frame = frame;
+    imageScrollView.imageView.frame = [imageScrollView bounds];
     [imageScrollView setMaxMinZoomScalesForCurrentBounds];
     [imageScrollView restoreCenterPoint:restorePoint scale:restoreScale];
 }
