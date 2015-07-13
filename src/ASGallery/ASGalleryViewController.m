@@ -51,17 +51,20 @@ NS_INLINE NSUInteger iOSVersion() {
 -(void)layoutSubviews
 {
     [super layoutSubviews];
-    
-    CGRect rect = [UIScreen mainScreen].bounds;
-    CGFloat height = rect.size.height;
 
-    if (iOSVersion() < 8 && UIInterfaceOrientationIsLandscape(self.interfaceOrientation))
-        height = rect.size.width;
+    if ( iOSVersion() < 7 )
+    {
+        CGRect rect = [UIScreen mainScreen].bounds;
+        CGFloat height = rect.size.height;
 
-    CGRect frame = self.shiftView.frame;
-    frame.origin.y = self.frame.size.height - height;
-    frame.size.height = height;
-    self.shiftView.frame = frame;
+        if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation))
+            height = rect.size.width;
+
+        CGRect frame = self.shiftView.frame;
+        frame.origin.y = self.frame.size.height - height;
+        frame.size.height = height;
+        self.shiftView.frame = frame;
+    }
 }
 
 @end
